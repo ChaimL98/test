@@ -13,10 +13,17 @@ public class BinaryTreeTest {
         tree.insert(60);
         tree.insert(80);
 
-        // Print inorder traversal
-        System.out.println("Inorder traversal of the binary tree:");
-        tree.inorderTraversal();
-        System.out.println();
+        // Print the traditional tree view
+        tree.printTraditionalTree();
+
+        // Print the tree structure
+        tree.printTree();
+
+        // Print all traversals
+        System.out.println("\nTree Traversals:");
+        tree.preorderTraversal();   // Root, Left, Right
+        tree.inorderTraversal();    // Left, Root, Right
+        tree.postorderTraversal();  // Left, Right, Root
 
         // Search for values
         System.out.println("\nSearch results:");
