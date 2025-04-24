@@ -62,6 +62,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>nl.blitz.demo.CodeCompassBackendApplication</mainClass>
 					<java.version>21</java.version>
 					<image>
 						<builder>paketobuildpacks/builder-jammy-base:latest</builder>
@@ -70,6 +71,13 @@
 						</env>
 					</image>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
