@@ -88,7 +88,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>nl.blitz.demo.NQueensSubsetTree</mainClass>
+							<mainClass>nl.blitz.demo.CodeCompassBackendApplication</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
