@@ -351,4 +351,126 @@ public class SubsetTree {
     public int getSubsetCount() {
         return subsetMapping.size();
     }
+
+    public void saveReverseTreeToPDF(String filename) throws IOException {
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
+            
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            contentStream.setFont(PDType1Font.HELVETICA, FONT_SIZE);
+            
+            float pageWidth = page.getMediaBox().getWidth();
+            float pageHeight = page.getMediaBox().getHeight();
+            
+            // Calculate total number of layers (depth + 1)
+            int totalLayers = elements.size() + 1;
+            
+            // Calculate width of each vertical section
+            float sectionWidth = (pageWidth - (2 * PAGE_MARGIN)) / totalLayers;
+            
+            // Calculate positions for each layer
+            List<List<Node>> layers = new ArrayList<>();
+            List<List<Float>> layerPositions = new ArrayList<>();
+            
+            // Initialize layers
+            for (int i = 0; i < totalLayers; i++) {
+                layers.add(new ArrayList<>());
+                layerPositions.add(new ArrayList<>());
+            }
+            
+            // Collect nodes for each layer
+            collectNodesByLayer(root, 0, layers);
+            
+            // Calculate positions for each layer
+            for (int layer = 0; layer < totalLayers; layer++) {
+                List<Node> nodes = layers.get(layer);
+                int totalNodes = nodes.size();
+                
+                // Calculate vertical spacing for this layer
+                float availableHeight = pageHeight - (2 * PAGE_MARGIN);
+                float verticalSpacing = availableHeight / (totalNodes + 1);
+                
+                // Calculate x position for this layer
+                float x = PAGE_MARGIN + (layer * sectionWidth) + (sectionWidth / 2);
+                
+                // Calculate y positions for nodes in this layer
+                for (int i = 0; i < totalNodes; i++) {
+                    float y = PAGE_MARGIN + ((i + 1) * verticalSpacing);
+                    layerPositions.get(layer).add(y);
+                }
+            }
+            
+            // Draw all nodes
+            for (int layer = 0; layer < totalLayers; layer++) {
+                List<Node> nodes = layers.get(layer);
+                List<Float> positions = layerPositions.get(layer);
+                
+                for (int i = 0; i < nodes.size(); i++) {
+                    Node node = nodes.get(i);
+                    float x = PAGE_MARGIN + (layer * sectionWidth) + (sectionWidth / 2);
+                    float y = positions.get(i);
+                    
+                    // Draw the circle
+                    drawCircle(contentStream, x, y);
+                    
+                    // Draw the text centered in the circle
+                    String nodeText = node.isLeaf ? formatSubset(node.subset) : node.chosenElement.toString();
+                    float textWidth = calculateTextWidth(nodeText);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(x - textWidth/2, y - FONT_SIZE/3);
+                    contentStream.showText(nodeText);
+                    contentStream.endText();
+                    
+                    // Draw connections to children if not a leaf
+                    if (!node.isLeaf && layer < totalLayers - 1) {
+                        // Find children positions in next layer
+                        int leftChildIndex = i * 2;
+                        int rightChildIndex = i * 2 + 1;
+                        
+                        if (leftChildIndex < layerPositions.get(layer + 1).size()) {
+                            float childX = PAGE_MARGIN + ((layer + 1) * sectionWidth) + (sectionWidth / 2);
+                            float leftChildY = layerPositions.get(layer + 1).get(leftChildIndex);
+                            
+                            // Set color for exclusion branch (red)
+                            contentStream.setStrokingColor(EXCLUSION_COLOR[0], EXCLUSION_COLOR[1], EXCLUSION_COLOR[2]);
+                            
+                            // Draw line from parent circle to child circle
+                            contentStream.moveTo(x + CIRCLE_RADIUS, y);
+                            contentStream.lineTo(childX - CIRCLE_RADIUS, leftChildY);
+                            contentStream.stroke();
+                        }
+                        
+                        if (rightChildIndex < layerPositions.get(layer + 1).size()) {
+                            float childX = PAGE_MARGIN + ((layer + 1) * sectionWidth) + (sectionWidth / 2);
+                            float rightChildY = layerPositions.get(layer + 1).get(rightChildIndex);
+                            
+                            // Set color for inclusion branch (green)
+                            contentStream.setStrokingColor(INCLUSION_COLOR[0], INCLUSION_COLOR[1], INCLUSION_COLOR[2]);
+                            
+                            // Draw line from parent circle to child circle
+                            contentStream.moveTo(x + CIRCLE_RADIUS, y);
+                            contentStream.lineTo(childX - CIRCLE_RADIUS, rightChildY);
+                            contentStream.stroke();
+                        }
+                    }
+                }
+            }
+            
+            contentStream.close();
+            document.save(filename);
+        }
+    }
+
+    private void collectNodesByLayer(Node node, int layer, List<List<Node>> layers) {
+        if (node == null) return;
+        
+        // Add node to its layer
+        layers.get(layer).add(node);
+        
+        if (!node.isLeaf) {
+            collectNodesByLayer(node.children[0], layer + 1, layers);
+            collectNodesByLayer(node.children[1], layer + 1, layers);
+        }
+    }
 } 
