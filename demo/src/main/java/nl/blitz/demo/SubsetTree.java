@@ -171,6 +171,8 @@ public class SubsetTree {
     }
 
     private void drawCircle(PDPageContentStream contentStream, float x, float y) throws IOException {
+        // Set stroke color to white (invisible)
+        contentStream.setStrokingColor(1f, 1f, 1f);
         contentStream.setLineWidth(CIRCLE_STROKE_WIDTH);
         contentStream.moveTo(x + CIRCLE_RADIUS, y);
         contentStream.curveTo(

@@ -9,15 +9,15 @@ import java.util.List;
 
 public class ReverseSubsetTreeTest {
     public static void main(String[] args) {
-        // Generate trees for sizes 3, 4, and 5
-        for (int size = 3; size <= 5; size++) {
+        // Generate trees for sizes 3, 4, 5, and 6
+        for (int size = 3; size <= 6; size++) {
             generateReverseSubsetTree(size);
         }
     }
 
     private static void generateReverseSubsetTree(int size) {
         // Create a list of distinct numbers based on size
-        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5).subList(0, size);
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6).subList(0, size);
         
         // Create a subset tree
         SubsetTree subsetTree = new SubsetTree(numbers);
