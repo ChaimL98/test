@@ -9,8 +9,15 @@ import java.util.List;
 
 public class SubsetTreeTest {
     public static void main(String[] args) {
-        // Create a list of 4 distinct numbers
-        List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+        // Generate trees for sizes 3, 4, and 5
+        for (int size = 3; size <= 5; size++) {
+            generateSubsetTree(size);
+        }
+    }
+
+    private static void generateSubsetTree(int size) {
+        // Create a list of distinct numbers based on size
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5).subList(0, size);
         
         // Create a subset tree
         SubsetTree subsetTree = new SubsetTree(numbers);
@@ -27,7 +34,7 @@ public class SubsetTreeTest {
                 Files.createDirectories(outputDir);
             }
             
-            String pdfPath = outputDir.resolve("subset_tree.pdf").toString();
+            String pdfPath = outputDir.resolve("subset_tree_size_" + size + ".pdf").toString();
             System.out.println("Attempting to save PDF to: " + pdfPath);
             
             // Check if file exists and delete it
@@ -39,42 +46,39 @@ public class SubsetTreeTest {
             }
             
             // Save the tree to a PDF file
-            System.out.println("Generating PDF...");
+            System.out.println("Generating PDF for size " + size + "...");
             subsetTree.saveTreeToPDF(pdfPath);
-            System.out.println("PDF generation completed.");
+            System.out.println("PDF generation completed for size " + size + ".");
             
             // Verify the file was created
             if (Files.exists(pdfFilePath)) {
                 System.out.println("Successfully saved PDF to: " + pdfPath);
                 System.out.println("File size: " + Files.size(pdfFilePath) + " bytes");
             } else {
-                System.err.println("Error: PDF file was not created!");
+                System.err.println("Error: PDF file was not created for size " + size + "!");
             }
+            
+            // Print statistics for this size
+            System.out.println("\nStatistics for size " + size + ":");
+            int totalSubsets = subsetTree.getSubsetCount();
+            System.out.println("Total number of subsets: " + totalSubsets);
+            
+            // Calculate expected number of subsets (2^n where n is number of elements)
+            int expectedSubsets = (int) Math.pow(2, numbers.size());
+            System.out.println("Expected number of subsets (2^" + numbers.size() + "): " + expectedSubsets);
+            
+            // Verify we have all subsets
+            if (totalSubsets == expectedSubsets) {
+                System.out.println("✓ All subsets generated successfully for size " + size + "!");
+            } else {
+                System.err.println("✗ Missing some subsets for size " + size + "! Expected " + expectedSubsets + ", got " + totalSubsets);
+            }
+            
+            System.out.println("\n" + "=".repeat(50) + "\n");
+            
         } catch (IOException e) {
-            System.err.println("Error saving tree to PDF: " + e.getMessage());
+            System.err.println("Error saving tree to PDF for size " + size + ": " + e.getMessage());
             e.printStackTrace();
-        }
-        
-        // Print the tree structure
-        subsetTree.printTree();
-        
-        // Print all subsets
-        subsetTree.printSubsets();
-        
-        // Print statistics
-        System.out.println("\nStatistics:");
-        int totalSubsets = subsetTree.getSubsetCount();
-        System.out.println("Total number of subsets: " + totalSubsets);
-        
-        // Calculate expected number of subsets (2^n where n is number of elements)
-        int expectedSubsets = (int) Math.pow(2, numbers.size());
-        System.out.println("Expected number of subsets (2^" + numbers.size() + "): " + expectedSubsets);
-        
-        // Verify we have all subsets
-        if (totalSubsets == expectedSubsets) {
-            System.out.println("✓ All subsets generated successfully!");
-        } else {
-            System.err.println("✗ Missing some subsets! Expected " + expectedSubsets + ", got " + totalSubsets);
         }
     }
 } 
